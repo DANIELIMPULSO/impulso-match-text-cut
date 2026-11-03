@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text Match Cut PT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Tinos:ital,wght@0,400;0,700;1,400&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0e0f12; --panel:#17191e; --line:#2a2d35; --text:#e8e9ec; --muted:#8b8f99; --accent:#ffe14d; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.4 Inter, system-ui, sans-serif; }
+  header { padding:16px 24px; border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  header h1 { margin:0; font-size:20px; }
+  header h1 span { background:var(--accent); color:#000; padding:0 6px; }
+  header p { margin:0; color:var(--muted); }
+  main { display:grid; grid-template-columns:350px 1fr; min-height:calc(100vh - 58px); }
+  aside { border-right:1px solid var(--line); padding:18px; overflow-y:auto; max-height:calc(100vh - 58px); }
+  section.preview { padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .group { margin-bottom:20px; }
+  .group h3 { margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  label { display:block; margin:8px 0 4px; font-size:13px; }
+  .hint { font-size:12px; color:var(--muted); margin:4px 0 0; }
+  input[type=text], select, textarea, input[type=number] { width:100%; background:var(--panel); color:var(--text);
+    border:1px solid var(--line); border-radius:6px; padding:8px 10px; font:inherit; }
+  textarea { min-height:70px; resize:vertical; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .colors { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .colors label { font-size:11px; color:var(--muted); }
+  input[type=color] { width:100%; height:34px; border:1px solid var(--line); border-radius:6px; background:var(--panel); padding:2px; }
+  .checks { display:grid; grid-template-columns:1fr 1fr; gap:2px 10px; }
+  .checks label, .check { display:flex; align-items:center; gap:6px; margin:3px 0; font-size:13px; }
+  .val { float:right; color:var(--muted); }
+  .seg { display:flex; gap:6px; }
+  .seg button { flex:1; }
+  button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px;
+    padding:9px 14px; font:inherit; cursor:pointer; }
+  button:hover { border-color:#4a4d57; }
+  button.on, button.primary { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
+  button:disabled { opacity:.5; cursor:default; }
+  #aiBtn { width:100%; margin-top:8px; }
+  #aiStatus { min-height:18px; }
+  .stage { width:100%; display:flex; justify-content:center; }
+  canvas { max-width:100%; max-height:64vh; border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,.5); background:#000; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .progress { width:100%; max-width:600px; height:6px; background:var(--panel); border-radius:3px; overflow:hidden; display:none; }
+  .progress div { height:100%; width:0; background:var(--accent); }
+  #status { color:var(--muted); min-height:20px; text-align:center; }
+  #result { display:none; flex-direction:column; align-items:center; gap:8px; }
+  #result video { max-width:520px; max-height:40vh; border-radius:8px; }
+  #result a { color:var(--accent); font-weight:600; }
+  @media (max-width:820px) { main { grid-template-columns:1fr; } aside { max-height:none; border-right:0; border-bottom:1px solid var(--line); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Text <span>Match</span> Cut</h1>
+  <p>Vídeos “text match cut” em português · MP4 4K</p>
+</header>
+<main>
+  <aside>
+    <div class="group">
+      <h3>Texto</h3>
+      <label for="keyword">Palavra destacada</label>
+      <input id="keyword" type="text" value="Impulso">
+      <label for="context">Contexto</label>
+      <textarea id="context" placeholder="Ex.: produtora de vídeo, filmagens, clientes, festival de cinema">produtora de vídeo, filmagens, cinema</textarea>
+      <label for="apiKey">Chave da API da Anthropic <span class="val">opcional</span></label>
+      <div class="seg">
+        <input id="apiKey" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" style="flex:1">
+        <button id="forgetKey" type="button" style="flex:0 0 auto">Esquecer</button>
+      </div>
+      <p class="hint">Fica salva só neste navegador. Crie em <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--accent)">console.anthropic.com</a>.</p>
+      <button id="aiBtn">✦ Gerar frases sobre o contexto</button>
+      <p class="hint" id="aiStatus"></p>
+    </div>
+
+    <div class="group">
+      <h3>Formato (MP4 4K)</h3>
+      <div class="seg" id="ratio">
+        <button data-w="1920" data-h="1080" class="on">16:9</button>
+        <button data-w="1080" data-h="1920">9:16</button>
+        <button data-w="1080" data-h="1080">1:1</button>
+      </div>
+      <p class="hint" id="resHint"></p>
+      <div class="row">
+        <div><label for="duration">Duração (s)</label><input id="duration" type="number" min="1" max="60" step="0.5" value="5"></div>
+        <div><label for="fps">FPS</label><select id="fps"><option>24</option><option selected>30</option><option>60</option></select></div>
+      </div>
+      <label for="speed">Cortes por segundo <span class="val" id="speedVal"></span></label>
+      <input id="speed" type="range" min="1" max="20" step="1" value="8">
+      <label class="check"><input id="accel" type="checkbox" checked> Desacelerar no final</label>
+      <label for="hold">Segurar último quadro <span class="val" id="holdVal"></span></label>
+      <input id="hold" type="range" min="0" max="3" step="0.25" value="1">
+    </div>
+
+    <div class="group">
+      <h3>Layouts</h3>
+      <div class="checks">
+        <label><input type="checkbox" class="layout" value="corpo" checked> Texto corrido</label>
+        <label><input type="checkbox" class="layout" value="manchete" checked> Manchete</label>
+        <label><input type="checkbox" class="layout" value="citacao" checked> Citação</label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Fontes</h3>
+      <div class="checks" id="fonts"></div>
+      <label for="size">Tamanho do texto <span class="val" id="sizeVal"></span></label>
+      <input id="size" type="range" min="40" max="140" step="1" value="84">
+    </div>
+
+    <div class="group">
+      <h3>Cores</h3>
+      <div class="colors">
+        <div><label>Papel</label><input id="cBg" type="color" value="#eeede7"></div>
+        <div><label>Texto</label><input id="cText" type="color" value="#1e1e1e"></div>
+        <div><label>Destaque</label><input id="cHi" type="color" value="#fde74c"></div>
+        <div><label>Txt destaque</label><input id="cHiText" type="color" value="#1e1e1e"></div>
+      </div>
+      <div class="seg" style="margin-top:8px" id="themes">
+        <button data-t="#eeede7,#1e1e1e,#fde74c,#1e1e1e">Jornal</button>
+        <button data-t="#f4ecd8,#3b2f22,#f2c14e,#2a2018">Antigo</button>
+        <button data-t="#111111,#ececec,#fde74c,#111111">Escuro</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Efeitos</h3>
+      <label for="depth">Desfoque de profundidade <span class="val" id="depthVal"></span></label>
+      <input id="depth" type="range" min="0" max="2" step="0.05" value="1">
+      <label for="vignette">Vinheta <span class="val" id="vignetteVal"></span></label>
+      <input id="vignette" type="range" min="0" max="1" step="0.05" value="0.45">
+      <label for="grain">Textura do papel <span class="val" id="grainVal"></span></label>
+      <input id="grain" type="range" min="0" max="1" step="0.05" value="0.4">
+      <label class="check"><input id="zoomOn" type="checkbox" checked> Zoom suave</label>
+      <div id="zoomOpts">
+        <div class="row">
+          <div><label for="zoomDir">Direção</label>
+            <select id="zoomDir"><option value="in" selected>Zoom in</option><option value="out">Zoom out</option></select></div>
+          <div><label for="zoomMode">Duração</label>
+            <select id="zoomMode"><option value="video" selected>Vídeo inteiro</option><option value="cut">A cada corte</option></select></div>
+        </div>
+        <label for="zoomPct">Intensidade do zoom <span class="val" id="zoomPctVal"></span></label>
+        <input id="zoomPct" type="range" min="1" max="40" step="1" value="8">
+      </div>
+      <label for="sound">Som a cada corte</label>
+      <div class="seg">
+        <select id="sound" style="flex:1">
+          <option value="papel" selected>Folhear papel</option>
+          <option value="obturador">Obturador de câmera</option>
+          <option value="filme">Avanço de filme</option>
+          <option value="polaroid">Polaroid</option>
+          <option value="flash">Flash</option>
+          <option value="none">Sem som</option>
+        </select>
+        <button id="soundTest" title="Ouvir o som" aria-label="Ouvir o som" style="flex:0 0 auto">🔊</button>
+      </div>
+      <label for="volume">Volume <span class="val" id="volumeVal"></span></label>
+      <input id="volume" type="range" min="0" max="1" step="0.05" value="0.6">
+    </div>
+  </aside>
+
+  <section class="preview">
+    <div class="stage"><canvas id="cv" width="1920" height="1080"></canvas></div>
+    <div class="actions">
+      <button id="playBtn">▶ Pré-visualizar</button>
+      <button id="shuffleBtn">↻ Novo quadro</button>
+      <button id="renderBtn" class="primary">⬇ Exportar MP4 4K</button>
+    </div>
+    <div class="progress" id="progress"><div></div></div>
+    <div id="status"></div>
+    <div id="result">
+      <video id="outVideo" controls playsinline></video>
+      <a id="download" download>Baixar vídeo</a>
+    </div>
+  </section>
+</main>
+<script src="vendor/mp4-muxer.js"></script>
+<script src="frases.js"></script>
+<script type="module" src="ai.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
