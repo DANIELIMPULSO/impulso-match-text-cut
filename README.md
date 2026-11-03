@@ -7,7 +7,7 @@ Gerador de vídeos "text match cut" em português. A palavra destacada fica para
 ## Como usar
 1. Abra o site no Chrome ou no Edge.
 2. Digite a **palavra destacada** e o **contexto** (ex.: "produtora de vídeo, filmagens, clientes").
-3. Opcional: cole uma chave da API da Anthropic para a IA escrever frases sobre o contexto. A chave fica salva só no seu navegador e nunca vai para este repositório. Sem chave, o site usa o banco de frases embutido.
+3. Opcional: cole uma chave da API da Anthropic para a IA escrever frases sobre o contexto. A chave não é salva em lugar nenhum: some ao recarregar a página. Sem chave, o site usa o banco de frases embutido.
 4. Ajuste layouts, fontes, cores, zoom e som.
 5. Clique em **Exportar MP4 4K** e baixe o vídeo.
 

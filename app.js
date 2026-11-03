@@ -86,23 +86,23 @@
   const enabledFonts = () => FONTS.filter((f) => f.on).map((f) => f.name);
 
   // ---------- IA ----------
-  // A chave fica só no navegador de quem a colou.
-  const KEY_STORE = "tmc-chave-api";
+  // A chave nunca é salva: fica só na memória desta aba e some ao recarregar.
+  // Também apaga a chave que versões anteriores do site guardavam no navegador.
+  try { localStorage.removeItem("tmc-chave-api"); } catch {}
+  // Se o navegador ainda tentar preencher o campo sozinho, apaga até a pessoa digitar ou colar.
+  let keyTouched = false;
+  ["keydown", "paste"].forEach((ev) => $("apiKey").addEventListener(ev, () => (keyTouched = true)));
+  const clearAutofill = () => { if (!keyTouched && $("apiKey").value) { $("apiKey").value = ""; updateAiStatus(); } };
+  $("apiKey").value = "";
+  [300, 1000, 2500].forEach((ms) => setTimeout(clearAutofill, ms));
   const getKey = () => $("apiKey").value.trim();
-  try { $("apiKey").value = localStorage.getItem(KEY_STORE) || ""; } catch {}
   function updateAiStatus() {
     $("aiStatus").textContent = getKey()
       ? "IA ativada: as frases serão escritas sobre o contexto."
       : "Sem chave: usando o banco de frases embutido com os termos do contexto.";
   }
-  $("apiKey").addEventListener("input", () => {
-    try { getKey() ? localStorage.setItem(KEY_STORE, getKey()) : localStorage.removeItem(KEY_STORE); } catch {}
-    updateAiStatus();
-  });
-  $("forgetKey").addEventListener("click", () => {
-    $("apiKey").value = ""; try { localStorage.removeItem(KEY_STORE); } catch {}
-    updateAiStatus();
-  });
+  $("apiKey").addEventListener("input", updateAiStatus);
+  $("forgetKey").addEventListener("click", () => { $("apiKey").value = ""; updateAiStatus(); });
   updateAiStatus();
 
   $("aiBtn").addEventListener("click", async () => {

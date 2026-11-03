@@ -69,10 +69,10 @@
       <textarea id="context" placeholder="Ex.: produtora de vídeo, filmagens, clientes, festival de cinema">produtora de vídeo, filmagens, cinema</textarea>
       <label for="apiKey">Chave da API da Anthropic <span class="val">opcional</span></label>
       <div class="seg">
-        <input id="apiKey" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" style="flex:1">
-        <button id="forgetKey" type="button" style="flex:0 0 auto">Esquecer</button>
+        <input id="apiKey" type="text" name="tmc-campo-chave" placeholder="sk-ant-…" autocomplete="off" autocorrect="off" autocapitalize="off" data-lpignore="true" data-1p-ignore data-form-type="other" spellcheck="false" style="flex:1; -webkit-text-security:disc; text-security:disc">
+        <button id="forgetKey" type="button" style="flex:0 0 auto">Limpar</button>
       </div>
-      <p class="hint">Fica salva só neste navegador. Crie em <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--accent)">console.anthropic.com</a>.</p>
+      <p class="hint">Não fica salva: some ao recarregar a página. Crie em <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--accent)">console.anthropic.com</a>.</p>
       <button id="aiBtn">✦ Gerar frases sobre o contexto</button>
       <p class="hint" id="aiStatus"></p>
     </div>
